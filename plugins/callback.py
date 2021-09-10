@@ -12,9 +12,9 @@ from .modules import modules_cb
 )
 async def cb_handler(bot: Client, update: CallbackQuery):
     if update.data == "home":
-        await start(update, cb=True)
+        await start(bot, update, cb=True)
     elif update.data == "help":
-        await help(update, cb=True)
+        await help(bot, update, cb=True)
     elif update.data == "about":
         await about(bot, update, cb=True)
     elif update.data == "close":
