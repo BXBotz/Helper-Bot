@@ -5,7 +5,7 @@ from pyrogram.types import Message
 
 
 @Client.on_message(filters.command(["attach"]) & filters.reply, group=1)
-async def attach(update: Message):
+async def attach(bot,update: Message):
     if len(update.text.split()) <= 1:
         await update.reply_text("Send command with link for attaching")
         return
