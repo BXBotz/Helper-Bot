@@ -47,7 +47,7 @@ MODULES = {
 
 
 @Client.on_message(filters.command(["modules"]), group=1)
-async def modules_help(update: Message, cb=False):
+async def modules_help(bot, update: Message, cb=False):
     text = "**Modules**"
     buttons = []
     for module in MODULES:
@@ -76,7 +76,7 @@ async def modules_help(update: Message, cb=False):
 
 
 @Client.on_message(filters.command(["module"]), group=1)
-async def module_help(update: Message):
+async def module_help(bot, update: Message):
     try:
         module = update.text.split(" ", 1)[1].lower()
         await update.reply_text(
