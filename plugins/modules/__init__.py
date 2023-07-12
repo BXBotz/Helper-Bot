@@ -4,12 +4,8 @@
 # All rights reserved by FayasNoushad
 # License -> https://github.com/TelegramHelpBot/Helper-Bot/blob/main/LICENSE
 
-from . import country, covid, info, json
-from .country import country
-from .covid import covid_info
-from .info import information
-from .json import response_json
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram import Client, filters
+from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 
 # "text" for adding text in module buttons.
@@ -17,6 +13,11 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 # "help_buttons" for extra buttons
 
 MODULES = {
+    "attach": {
+        "text": "Attach",
+        "help_text": "**Attach**\n\n- Just send a html or markdown message\n\n- Reply /attach with link for attaching",
+        "help_buttons": []
+    },
     "country": {
         "text": "Country Info",
         "help_text": "**Country Information**\n\nSend /country with country name for information of that country.\n\nLike :- `/country India`",
@@ -36,19 +37,22 @@ MODULES = {
         "text": "Response Json",
         "help_text": "**Response Json**\n\n`For getting json response`\n\nSend /json command with reply a message.",
         "help_buttons": []
+    },
+    "ytthumb": {
+        "text": "YouTube Thumbnail",
+        "help_text": "**YouTube Thumbnail**\n\n`For YouTube videos thumbnail`\n\n- Send a /ytthumb with youtube video link or video ID.\n- I will send the thumbnail.\n- You can also send youtube video link or video id with quality.\n  - sd - Standard Quality\n  - mq - Medium Quality\n  - hq - High Quality\n  - maxres - Maximum Resolution\n\n**Example:** `/ytthumb rokGy0huYEA sd`",
+        "help_buttons": []
     }
 }
 
 
-async def modules_help(bot, update, cb=False):
-    if cb and update.data.startswith("module+"):
-        await modules_cb(bot, update)
-        return
+@Client.on_message(filters.command(["modules"]), group=1)
+async def modules_help(bot, update: Message, cb=False):
     text = "**Modules**"
     buttons = []
     for module in MODULES:
         button = InlineKeyboardButton(
-            text=MODULES[module.lower()]["text"],
+            text=MODULES[module]["text"],
             callback_data="module+"+module
         )
         if len(buttons) == 0 or len(buttons[-1]) >= 2:
@@ -71,36 +75,27 @@ async def modules_help(bot, update, cb=False):
         )
 
 
-async def modules_commands(bot, update, linked=False):
-    if linked:
-        await modules_help(bot, update)
-        return 
-    if len(update.text.split("/", 1)) <= 1:
-        return
-    command = update.text.split("/", 1)[1]
-    if command.startswith("country"):
-        await country(bot, update)
-    elif command.startswith("covid"):
-        await covid_info(bot, update)
-    elif command.startswith("info"):
-        await information(bot, update)
-    elif command.startswith("json"):
-        await response_json(bot, update)
+@Client.on_message(filters.command(["module"]), group=1)
+async def module_help(bot, update: Message):
+    try:
+        module = update.text.split(" ", 1)[1].lower()
+        await update.reply_text(
+            text=MODULES[module]["help_text"],
+            disable_web_page_preview=True,
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton(text="🔙 Back", callback_data="modules")]]
+            ),
+            quote=True
+        )
+    except Exception as error:
+        await update.reply_text(
+            text=error,
+            disable_web_page_preview=True,
+            quote=True
+        )
 
 
-async def modules_help(bot, update):
-    module = update.text.split(" ", 1)[1]
-    await update.reply_text(
-        text=MODULES[module]["help_text"],
-        disable_web_page_preview=True,
-        reply_markup=InlineKeyboardMarkup(
-            [[InlineKeyboardButton(text="🔙 Back", callback_data="modules")]]
-        ),
-        quote=True
-    )
-
-
-async def modules_cb(bot, update):
+async def modules_cb(update):
     module = update.data.split("+")[1]
     await update.message.edit_text(
         text=MODULES[module]["help_text"],

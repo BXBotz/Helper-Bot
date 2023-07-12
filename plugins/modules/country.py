@@ -3,10 +3,11 @@
 from config import *
 from countryinfo import CountryInfo
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 
-async def country(bot, update):
+@Client.on_message(filters.command(["country", "countryinfo"]), group=1)
+async def country_info(bot,update: Message):
     country = update.text.split(" ", 1)[1]
     country = CountryInfo(country)
     info = f"""--**Country Information**--
@@ -23,7 +24,7 @@ Currencies : `{country.currencies()}`
 Residence : `{country.demonym()}`
 Timezone : `{country.timezones()}`
 
-Made by @FayasNoushad"""
+Made by **@FayasNoushad**"""
     country_name = country.name()
     country_name = country_name.replace(" ", "+")
     reply_markup=InlineKeyboardMarkup(
@@ -38,7 +39,12 @@ Made by @FayasNoushad"""
         await update.reply_text(
             text=info,
             reply_markup=reply_markup,
-            disable_web_page_preview=True
+            disable_web_page_preview=True,
+            quote=True
         )
     except Exception as error:
-        print(error)
+        await update.reply_text(
+            text=error,
+            disable_web_page_preview=True,
+            quote=True
+        )

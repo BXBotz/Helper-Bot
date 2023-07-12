@@ -2,14 +2,15 @@
 
 from config import *
 from pyrogram import Client
+from pyrogram.types import CallbackQuery
 from .commands import *
-from .modules import modules_help
+from .modules import modules_cb
 
 
 @Client.on_callback_query(
     filters.user(AUTH_USERS) if PRIVATE else None
 )
-async def cb_handler(bot, update):
+async def cb_handler(bot: Client, update: CallbackQuery):
     if update.data == "home":
         await start(bot, update, cb=True)
     elif update.data == "help":
@@ -18,5 +19,7 @@ async def cb_handler(bot, update):
         await about(bot, update, cb=True)
     elif update.data == "close":
         await update.message.delete()
-    elif update.data.startswith("module"):
-        await modules_help(bot, update, cb=True)
+    elif update.data.startswith("module+"):
+        await modules_cb(bot,update)
+    elif update.data.startswith("modules"):
+        await modules_cb(bot, update, cb=True)
